@@ -8,11 +8,13 @@ import (
 const NotFound = "Item not found"
 
 type Item struct {
-	Id             int64     `json:"id"`
-	Label          string    `json:"label"`
-	Description    string    `json:"description"`
-	ExpirationDate time.Time `json:"expirationDate"`
-	Image          []byte    `json:"image"`
+	Id             	int64   	`json:"id"`
+	UserId		   	int64		`json:"userId"`
+	Label          	string		`json:"label"`
+	Description    	string 	 	`json:"description"`
+	ContainerNumber int32		`json:"containerNumber"`
+	ExpirationDate 	time.Time 	`json:"expirationDate"`
+	Image          	[]byte    	`json:"image"`
 }
 
 type ItemService struct {
@@ -26,7 +28,7 @@ func (service *ItemService) Add(newItem *Item) (int64, error) {
 	}
 
 	stmt, stmtErr := tx.Prepare(`
-		INSERT INTO items (label, description, expiration_date, image) VALUES (?,?,?,?)`)
+		INSERT INTO items (user_id, label, description, container_number, expiration_date, image) VALUES (?,?,?,?,?,?)`)
 	if stmtErr != nil {
 		return 0, stmtErr
 	}
@@ -34,8 +36,10 @@ func (service *ItemService) Add(newItem *Item) (int64, error) {
 	defer stmt.Close()
 
 	res, err := stmt.Exec(
+		newItem.UserId,
 		newItem.Label,
 		newItem.Description,
+		newItem.ContainerNumber,
 		newItem.ExpirationDate.Format(time.RFC3339),
 		newItem.Image)
 
@@ -58,10 +62,11 @@ func (service *ItemService) Update(item *Item) error {
 	stmt, stmtErr := tx.Prepare(`
 		UPDATE items 
 		SET label = ?, 
-			 description = ?, 
-			 expiration_date = ?,
-			 image = ?
-		WHERE id = ?
+			description = ?,
+			container_number = ?,
+			expiration_date = ?,
+			image = ?
+		WHERE id = ? AND user_id = ?
 	`)
 	if stmtErr != nil {
 		return stmtErr
@@ -72,10 +77,11 @@ func (service *ItemService) Update(item *Item) error {
 	res, err := stmt.Exec(
 		item.Label,
 		item.Description,
+		item.ContainerNumber,
 		item.ExpirationDate.Format(time.RFC3339),
 		item.Image,
-		item.Id)
-
+		item.Id,
+		item.UserId)
 	if err != nil {
 		return err
 	}
@@ -90,7 +96,7 @@ func (service *ItemService) Update(item *Item) error {
 	return nil
 }
 
-func (service *ItemService) Delete(id int64) error {
+func (service *ItemService) Delete(id int64, userId int64) error {
 	tx, txErr := service.Db.Begin()
 	if txErr != nil {
 		return txErr
@@ -118,19 +124,28 @@ func (service *ItemService) Delete(id int64) error {
 	return nil
 }
 
-func (service *ItemService) GetAll() ([]Item, error) {
+func (service *ItemService) GetUserItems(userId int64) ([]Item, error) {
 	items := make([]Item, 0)
-	rows, err := service.Db.Query("SELECT id, label, description, expiration_date, image FROM items")
+
+	stmt, stmtErr := service.Db.Prepare(`
+		SELECT id, user_id, label, description, container_number, expiration_date, image 
+			FROM items
+			WHERE user_id = ?`)
+	if stmtErr != nil {
+		return nil, stmtErr
+	}
+	
+	rows, err := stmt.Query(userId)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	defer rows.Close()
 
 	for rows.Next() {
 		item := Item{}
 		var expirationDate string
-		rowErr := rows.Scan(&item.Id, &item.Label, &item.Description, &expirationDate, &item.Image)
+		rowErr := rows.Scan(&item.Id, &item.Label, &item.Description, &item.ContainerNumber, &expirationDate, &item.Image)
 
 		if rowErr != nil {
 			return nil, rowErr
