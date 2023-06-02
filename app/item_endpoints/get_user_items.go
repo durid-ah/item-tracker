@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/durid-ah/item-tracker/helpers"
 	"github.com/durid-ah/item-tracker/services"
 )
 
@@ -17,8 +18,9 @@ func GetItemsHandler(db *sql.DB) http.Handler {
 				return
 			}
 
+			username := r.Context().Value(helpers.UserNameKey)
 			itemSvc := services.ItemService{Db: db}
-			items, err := itemSvc.GetAll()
+			items, err := itemSvc.GetUserItems(username.(string))
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				log.Println(err)
