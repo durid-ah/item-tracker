@@ -1,15 +1,18 @@
 package helpers
 
 import (
-	"database/sql"
 	"net/http"
+	"context"
 
 	"github.com/durid-ah/item-tracker/dto"
 
 	"github.com/golang-jwt/jwt"
 )
 
-func WithAuth(handler http.Handler, db *sql.DB) http.Handler {
+
+const UserNameKey = "appUserName"
+
+func WithAuth(handler http.Handler) http.Handler {
 	
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +57,9 @@ func WithAuth(handler http.Handler, db *sql.DB) http.Handler {
 				return
 			}
 
-			handler.ServeHTTP(w, r)
+			ctx := r.Context()
+			newCtx := context.WithValue(ctx, UserNameKey, claims.ID)
+
+			handler.ServeHTTP(w, r.WithContext(newCtx))
 		})
 }
