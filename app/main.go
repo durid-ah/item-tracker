@@ -27,7 +27,8 @@ func main() {
 
 	http.Handle("/signin", userendpoints.Signin(db))
 
-	http.Handle("/items", helpers.WithAuth(itemendpoints.GetItemsHandler(db)))
+	http.Handle("/items/add", helpers.WithAuth(itemendpoints.AddItemHandler(db)))
+	http.Handle("/items/list", helpers.WithAuth(itemendpoints.GetItemsHandler(db)))
 
 	log.Println("Listening localhost:8080")
 	http.ListenAndServe("localhost:8080", nil)
