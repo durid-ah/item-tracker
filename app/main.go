@@ -25,8 +25,10 @@ func main() {
 	db := ConnectDatabase()
 	log.Println("Database connected...")
 
+	log.Println("Setting up user endpoints")
 	http.Handle("/signin", userendpoints.Signin(db))
 
+	log.Println("Setting up item endpoints")
 	http.Handle("/items/add", helpers.WithAuth(itemendpoints.AddItemHandler(db)))
 	http.Handle("/items/list", helpers.WithAuth(itemendpoints.GetItemsHandler(db)))
 

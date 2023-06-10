@@ -21,11 +21,14 @@ type ItemService struct {
 	Db *sql.DB
 }
 
-func (service *ItemService) Add(newItem *Item) (int64, error) {
+func (service *ItemService) Add(newItem *Item, username string) (int64, error) {
 	tx, txErr := service.Db.Begin()
 	if txErr != nil {
 		return 0, txErr
 	}
+
+	userRow := tx.QueryRow("SELECT id FROM users WHERE username = ?", username)
+	userRow.Scan(&newItem.UserId)
 
 	stmt, stmtErr := tx.Prepare(`
 		INSERT INTO items (user_id, label, description, container_number, expiration_date, image) VALUES (?,?,?,?,?,?)`)
