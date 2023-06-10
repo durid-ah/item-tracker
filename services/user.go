@@ -23,7 +23,8 @@ func (service *UserService) Add(newUser *User) (int64, error) {
 		return 0, txErr
 	}
 
-	bytes, err := bcrypt.GenerateFromPassword([]byte("Test stuff"), 14)
+	// convert password to hash and store it in the Password field
+	bytes, err := bcrypt.GenerateFromPassword(newUser.Password, 14)
 	if err != nil {
 		log.Fatalln("Failed to hash password")
 	}
