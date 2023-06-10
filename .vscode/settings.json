@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "something",
+            "database": "${workspaceFolder:item-tracker}/something.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
