@@ -56,7 +56,7 @@ func (service *ItemService) Add(newItem *Item, username string) (int64, error) {
 	return id, nil
 }
 
-func (service *ItemService) Update(item *Item) error {
+func (service *ItemService) Update(item *Item, username string) error {
 	tx, txErr := service.Db.Begin()
 	if txErr != nil {
 		return txErr
