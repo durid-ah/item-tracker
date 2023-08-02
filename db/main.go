@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/durid-ah/item-tracker/services"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -78,6 +79,10 @@ func CreateUsersTable(db *sql.DB) {
 func main() {
 	db := ConnectDatabase()
 
-	CreateUsersTable(db)
-	CreateItemsTable(db)
+	// CreateUsersTable(db)
+	// CreateItemsTable(db)
+
+	userSvc := services.UserService{ Db: db }
+	userSvc.Add(&services.User{ Username: "user1", Password: []byte("password")})
+	userSvc.Add(&services.User{ Username: "user2", Password: []byte("password")})
 }

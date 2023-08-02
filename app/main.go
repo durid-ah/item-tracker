@@ -27,10 +27,15 @@ func main() {
 
 	log.Println("Setting up user endpoints")
 	http.Handle("/signin", userendpoints.Signin(db))
+	// sign out
+	// refresh
 
 	log.Println("Setting up item endpoints")
 	http.Handle("/items/add", helpers.WithAuth(itemendpoints.AddItemHandler(db)))
 	http.Handle("/items/list", helpers.WithAuth(itemendpoints.GetItemsHandler(db)))
+	http.Handle("/items/update", itemendpoints.UpdateItemHandler(db))
+	// remove
+	
 
 	log.Println("Listening localhost:8080")
 	http.ListenAndServe("localhost:8080", nil)

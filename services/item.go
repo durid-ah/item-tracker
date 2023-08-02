@@ -99,20 +99,27 @@ func (service *ItemService) Update(item *Item, username string) error {
 	return nil
 }
 
-func (service *ItemService) Delete(id int64, userId int64) error {
+func (service *ItemService) Delete(id int64, username string) error {
 	tx, txErr := service.Db.Begin()
 	if txErr != nil {
 		return txErr
 	}
 
-	stmt, stmtErr := tx.Prepare(`DELETE FROM items WHERE id = ?`)
+	stmt, stmtErr := tx.Prepare(`
+		DELETE FROM items 
+		WHERE id IN (
+			SELECT i.id FROM items i
+			INNER JOIN users u ON i.user_id = u.id
+			WHERE i.id = ? AND u.username = ?
+		);
+	`)
 	if stmtErr != nil {
 		return stmtErr
 	}
 
 	defer stmt.Close()
 
-	res, err := stmt.Exec(id)
+	res, err := stmt.Exec(id, username)
 	if err != nil {
 		return err
 	}
