@@ -5,35 +5,35 @@
  <body class="flex justify-center items-center">
   <div class="card w-96 bg-base-100 shadow-xl">
     <div class="card-body">
-      <h2 class="card-title">Sign In</h2>
+      <!-- <h2 class="card-title">Sign In</h2>
       <div class="form-control w-full max-w-xs flex flex-col space-y-2">
         <input id="user" type="text" placeholder="username" class="input input-bordered w-full max-w-xs" />
         <input id="pass" type="password" placeholder="password" class="input input-bordered w-full max-w-xs" />
       </div>
       <div class="card-actions justify-end">
         <button id="login" class="btn btn-primary">Login</button>
-      </div>
+      </div> -->
     </div>
   </div>
   <script>
-    async function login() {
-      const username = document.getElementById("user").value
-      const password = document.getElementById("pass").value
+    // async function login() {
+    //   const username = document.getElementById("user").value
+    //   const password = document.getElementById("pass").value
 
-      const response = await fetch("/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        // redirect: "follow",
-        body: JSON.stringify({
-          username, password
-        })
-      })
-    }
+    //   const response = await fetch("/signin", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json"
+    //     },
+    //     // redirect: "follow",
+    //     body: JSON.stringify({
+    //       username, password
+    //     })
+    //   })
+    // }
 
-    const button = document.getElementById("login")
-    button.addEventListener("click", login);
+    // const button = document.getElementById("login")
+    // button.addEventListener("click", login);
   </script>
  </body>
 </html>
