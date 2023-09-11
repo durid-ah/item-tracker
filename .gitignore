@@ -21,3 +21,6 @@
 go.work
 
 *.db
+
+
+frontend/node_modules
