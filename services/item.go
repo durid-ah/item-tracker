@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"log"
 	"time"
 )
 
@@ -140,7 +141,7 @@ func (service *ItemService) GetUserItems(username string) ([]Item, error) {
 	stmt, stmtErr := service.Db.Prepare(`
 		SELECT i.id, i.label, i.description, i.container_number, i.expiration_date, i.image
 		FROM users AS u
-		INNER JOIN items AS i ON i.id = u.id
+		INNER JOIN items AS i ON i.user_id = u.id
 		WHERE username = ?`)
 	if stmtErr != nil {
 		return nil, stmtErr
