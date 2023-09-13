@@ -3,37 +3,120 @@
    <link rel="stylesheet" type="text/css" href="/css/style.css">
  </head>
  <body class="flex justify-center items-center">
-  <div class="card w-96 bg-base-100 shadow-xl">
-    <div class="card-body">
-      <!-- <h2 class="card-title">Sign In</h2>
-      <div class="form-control w-full max-w-xs flex flex-col space-y-2">
-        <input id="user" type="text" placeholder="username" class="input input-bordered w-full max-w-xs" />
-        <input id="pass" type="password" placeholder="password" class="input input-bordered w-full max-w-xs" />
+    <div class="overflow-x-auto">
+        <table class="table">
+          <!-- head -->
+          <thead>
+            <tr>
+              <th>
+                <label>
+                  <input type="checkbox" class="checkbox"/>
+                </label>
+              </th>
+              <th>Label</th>
+              <th>Description</th>
+              <th>Expiration Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+          <!-- foot -->
+          <tfoot>
+            <tr>
+            </tr>
+          </tfoot>
+          
+        </table>
       </div>
-      <div class="card-actions justify-end">
-        <button id="login" class="btn btn-primary">Login</button>
-      </div> -->
-    </div>
-  </div>
   <script>
-    // async function login() {
-    //   const username = document.getElementById("user").value
-    //   const password = document.getElementById("pass").value
+    function createCheckbox() {
+      const input = document.createElement("input") 
+      input.classList.add("checkbox")
+      input.type = "checkbox"
+      return input
+    }
 
-    //   const response = await fetch("/signin", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json"
-    //     },
-    //     // redirect: "follow",
-    //     body: JSON.stringify({
-    //       username, password
-    //     })
-    //   })
-    // }
+    function createDetailButton() {
+      const button = document.createElement("button")
+      button.classList.add("btn", "btn-ghost", "btn-xs")
+      button.innerText = "details"
 
-    // const button = document.getElementById("login")
-    // button.addEventListener("click", login);
+      return button
+    }
+
+    function createLabel(label) {
+      const innerDiv = document.createElement("div")
+      innerDiv.classList.add("font-bold")
+      innerDiv.textContent = label
+
+      const outerDiv = document.createElement("div")
+      outerDiv.classList.add("flex","items-center", "space-x-3")
+      outerDiv.appendChild(innerDiv)
+
+      return outerDiv
+    }
+
+    function createExpirationDate(dateString) {
+      const date = new Date(dateString)
+      const formattedDate = `${date.getUTCMonth()}/${date.getUTCDay()}/${date.getUTCFullYear()}`
+
+      const div = document.createElement("div")
+      div.innerText = formattedDate
+
+      return div
+    }
+
+    function createDescription(description) {
+      const div = document.createElement("div")
+      div.innerText = description
+
+      return div
+    }
+
+    function createTd(child) {
+      const td = document.createElement("td")
+      td.appendChild(child)
+
+      return td
+    }
+
+    function createTh(child) {
+      const th = document.createElement("th")
+      th.appendChild(child)
+
+      return th
+    }
+
+    async function getItems() {
+      const items = await fetch("/items/list")
+        .then(res => res.json())
+        .catch(err => window.location.href = "/")
+
+      const tbody = document.getElementById("tbody")
+      console.log(items)
+      items.forEach(i => {
+        const tRow = document.createElement("tr")
+
+        const checkboxTH = createTh(createCheckbox())
+        tRow.appendChild(checkboxTH)
+
+        const labelTD = createTd(createLabel(i.label))
+        tRow.appendChild(labelTD)
+
+        const descriptionTD = createTd(createDescription(i.description))
+        tRow.appendChild(descriptionTD)
+
+        const expirationDateTD = createTd(createExpirationDate(i.expirationDate))
+        tRow.appendChild(expirationDateTD)
+
+        const detailButtonTH = createTh(createDetailButton())
+        tRow.appendChild(detailButtonTH)
+
+        tbody.appendChild(tRow)
+      });
+    }
+
+    getItems()
   </script>
  </body>
 </html>

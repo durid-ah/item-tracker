@@ -25,11 +25,12 @@
         headers: {
           "Content-Type": "application/json"
         },
-        // redirect: "follow",
         body: JSON.stringify({
           username, password
         })
       })
+
+      window.location.href = "/item-list.html"
     }
 
     const button = document.getElementById("login")
