@@ -1,0 +1,23 @@
+<html>
+ <head>
+   <link rel="stylesheet" type="text/css" href="/css/style.css">
+ </head>
+ <body class="flex flex-col justify-center items-center">
+  <div class="w-full flex justify-end p-4 gap-2">
+    <button id="sign-out" class="btn btn-primary">Sign Out</button>
+  </div>
+  <div class="flex justify-center items-center">
+     
+  </div>
+  <script>
+    function setUpSignOut() {
+      document.getElementById("sign-out")
+        .addEventListener("click", () => {
+          fetch("/signout").then(() => window.location.href = "/")
+        })
+    }
+
+    setUpSignOut()
+</script>
+ </body>
+</html>

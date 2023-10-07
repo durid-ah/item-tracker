@@ -2,7 +2,6 @@ package services
 
 import (
 	"database/sql"
-	"log"
 	"time"
 )
 

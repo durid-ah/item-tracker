@@ -1,122 +1,120 @@
 <html>
  <head>
    <link rel="stylesheet" type="text/css" href="/css/style.css">
- </head>
- <body class="flex justify-center items-center">
-    <div class="overflow-x-auto">
-        <table class="table">
-          <!-- head -->
-          <thead>
-            <tr>
-              <th>
-                <label>
-                  <input type="checkbox" class="checkbox"/>
-                </label>
-              </th>
-              <th>Label</th>
-              <th>Description</th>
-              <th>Expiration Date</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-          <!-- foot -->
-          <tfoot>
-            <tr>
-            </tr>
-          </tfoot>
-          
-        </table>
-      </div>
-  <script>
-    function createCheckbox() {
-      const input = document.createElement("input") 
-      input.classList.add("checkbox")
-      input.type = "checkbox"
-      return input
-    }
+   <script type="module">
+    import { html, Component, render,  useState, useCallback, useEffect } from 'https://unpkg.com/htm/preact/standalone.module.js';
 
-    function createDetailButton() {
-      const button = document.createElement("button")
-      button.classList.add("btn", "btn-ghost", "btn-xs")
-      button.innerText = "details"
-
-      return button
-    }
-
-    function createLabel(label) {
-      const innerDiv = document.createElement("div")
-      innerDiv.classList.add("font-bold")
-      innerDiv.textContent = label
-
-      const outerDiv = document.createElement("div")
-      outerDiv.classList.add("flex","items-center", "space-x-3")
-      outerDiv.appendChild(innerDiv)
-
-      return outerDiv
-    }
-
-    function createExpirationDate(dateString) {
+    function formatExpirationDate(dateString) {
       const date = new Date(dateString)
-      const formattedDate = `${date.getUTCMonth()}/${date.getUTCDay()}/${date.getUTCFullYear()}`
-
-      const div = document.createElement("div")
-      div.innerText = formattedDate
-
-      return div
+      return `${date.getUTCMonth()}/${date.getUTCDay()}/${date.getUTCFullYear()}`
     }
 
-    function createDescription(description) {
-      const div = document.createElement("div")
-      div.innerText = description
+    function App({ page }) {
+      // const [ todos, setTodo ] = useState([])
+      // const addTodo = useCallback(() => setTodo(todos.concat(`Item ${ todos.length }`)))
 
-      return div
+      // return html`
+      //     <div class="app">
+      //       <${Header} name="ToDo's (${page})" />
+      //       <ul>
+      //         ${todos.map(todo => html`
+      //           <li key=${todo}>${todo}</li>
+      //         `)}
+      //       </ul>
+      //       <button onClick=${addTodo}>Add Todo</button>
+      //       <${Footer}>footer content here<//>
+      //     </div>
+      //   `;
+
+      const [items, setItems] = useState([])
+     
+      // get items from the backend
+      useEffect(async () => {
+        const _items = await fetch("/items/list")
+          .then(res => res.json())
+          .catch(err => window.location.href = "/")
+
+        console.log(_items)
+
+        setItems(_items)
+      },[])
+     
+      return html`
+      <div class="flex justify-center items-center">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>
+                  <label>
+                    <input id="select-all-checkbox" type="checkbox" class="checkbox"/>
+                   </label>
+                </th>
+                <th>Label</th>
+                <th>Description</th>
+                <th>Expiration Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              ${items.map(item => html`<${ItemRow} key=${item} item=${item} />`)}
+            </tbody>
+            <tfoot>
+              <tr>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>`
     }
 
-    function createTd(child) {
-      const td = document.createElement("td")
-      td.appendChild(child)
-
-      return td
+    function ItemRow({item}) {
+      return html`
+      <tr>
+        <th><input class="checkbox" type="checkbox" /></th>
+        <td><div class="flex items-center space-x-3"><div class="font-bold">${item.label}</div></div></td>
+        <td><div>${item.description}</div></td>
+        <td><div>${formatExpirationDate(item.expirationDate)}</div></td>
+        <th><button class="btn btn-ghost btn-xs">details</button></th>
+      </tr>`
     }
 
-    function createTh(child) {
-      const th = document.createElement("th")
-      th.appendChild(child)
 
-      return th
-    }
-
-    async function getItems() {
-      const items = await fetch("/items/list")
-        .then(res => res.json())
-        .catch(err => window.location.href = "/")
-
-      const tbody = document.getElementById("tbody")
-      console.log(items)
-      items.forEach(i => {
-        const tRow = document.createElement("tr")
-
-        const checkboxTH = createTh(createCheckbox())
-        tRow.appendChild(checkboxTH)
-
-        const labelTD = createTd(createLabel(i.label))
-        tRow.appendChild(labelTD)
-
-        const descriptionTD = createTd(createDescription(i.description))
-        tRow.appendChild(descriptionTD)
-
-        const expirationDateTD = createTd(createExpirationDate(i.expirationDate))
-        tRow.appendChild(expirationDateTD)
-
-        const detailButtonTH = createTh(createDetailButton())
-        tRow.appendChild(detailButtonTH)
-
-        tbody.appendChild(tRow)
-      });
-    }
-
-    getItems()
+    render(html`<${App} page="All" />`, document.body) //document.getElementById('preact-app'));
   </script>
+ </head>
+ <body class="flex flex-col justify-center items-center">
+  <!-- <div class="w-full flex justify-end p-4 gap-2">
+    <button id="add" class="btn btn-secondary">Add Item</button>
+    <button id="sign-out" class="btn btn-primary">Sign Out</button>
+  </div> -->
+  <script>
+
+    function setUpSignOut() {
+      document.getElementById("sign-out")
+        .addEventListener("click", () => {
+          fetch("/signout").then(() => window.location.href = "/")
+        })
+    }
+
+    function setUpAddItem() {
+      document.getElementById("add")
+        .addEventListener("click", () => window.location.href = "/item-add.html")
+    }
+
+    function setUpMainCheckbox() {
+      document.getElementById("select-all-checkbox")
+        .addEventListener("change", (e) => console.log(e.target.checked))
+    }
+
+    // setUpSignOut()
+    // setUpAddItem()
+    // setUpMainCheckbox()
+  </script>
+
+
+
+
+
  </body>
 </html>
