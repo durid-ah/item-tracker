@@ -9,23 +9,15 @@
       return `${date.getUTCMonth()}/${date.getUTCDay()}/${date.getUTCFullYear()}`
     }
 
+    async function signOut() {
+      await fetch("/signout").then(() => window.location.href = "/")
+    }
+
+    function addItem() {
+      window.location.href = "/item-add.html";
+    }
+
     function App({ page }) {
-      // const [ todos, setTodo ] = useState([])
-      // const addTodo = useCallback(() => setTodo(todos.concat(`Item ${ todos.length }`)))
-
-      // return html`
-      //     <div class="app">
-      //       <${Header} name="ToDo's (${page})" />
-      //       <ul>
-      //         ${todos.map(todo => html`
-      //           <li key=${todo}>${todo}</li>
-      //         `)}
-      //       </ul>
-      //       <button onClick=${addTodo}>Add Todo</button>
-      //       <${Footer}>footer content here<//>
-      //     </div>
-      //   `;
-
       const [items, setItems] = useState([])
      
       // get items from the backend
@@ -40,6 +32,11 @@
       },[])
      
       return html`
+      <div class="w-full flex justify-end p-4 gap-2">
+        <button id="add" class="btn btn-secondary" onClick=${addItem}>Add Item</button>
+        <button id="add" class="btn btn-secondary" onClick=${addItem}>Delete Items</button>
+        <button id="sign-out" class="btn btn-primary" onClick=${signOut} >Sign Out</button>
+      </div>
       <div class="flex justify-center items-center">
         <div class="overflow-x-auto">
           <table class="table">
@@ -80,41 +77,9 @@
     }
 
 
-    render(html`<${App} page="All" />`, document.body) //document.getElementById('preact-app'));
+    render(html`<${App} page="All" />`, document.body)
   </script>
  </head>
  <body class="flex flex-col justify-center items-center">
-  <!-- <div class="w-full flex justify-end p-4 gap-2">
-    <button id="add" class="btn btn-secondary">Add Item</button>
-    <button id="sign-out" class="btn btn-primary">Sign Out</button>
-  </div> -->
-  <script>
-
-    function setUpSignOut() {
-      document.getElementById("sign-out")
-        .addEventListener("click", () => {
-          fetch("/signout").then(() => window.location.href = "/")
-        })
-    }
-
-    function setUpAddItem() {
-      document.getElementById("add")
-        .addEventListener("click", () => window.location.href = "/item-add.html")
-    }
-
-    function setUpMainCheckbox() {
-      document.getElementById("select-all-checkbox")
-        .addEventListener("change", (e) => console.log(e.target.checked))
-    }
-
-    // setUpSignOut()
-    // setUpAddItem()
-    // setUpMainCheckbox()
-  </script>
-
-
-
-
-
  </body>
 </html>
