@@ -1,0 +1,105 @@
+<html>
+ <head>
+   <link rel="stylesheet" type="text/css" href="./src/index.css">
+   <script type="module">
+
+    import { useState, useCallback, useEffect } from 'preact/hooks';
+    import { useSignal, useComputed } from '@preact/signals';
+    import { render } from 'preact';
+    import { html } from 'htm/preact';
+
+    function formatExpirationDate(dateString) {
+      const date = new Date(dateString)
+      return `${date.getUTCMonth()}/${date.getUTCDay()}/${date.getUTCFullYear()}`
+    }
+
+    async function signOut() {
+      await fetch("/signout").then(() => window.location.href = "/")
+    }
+
+    function addItem() {
+      window.location.href = "/item-add.html";
+    }
+
+    function App({ page }) {
+      const items = useSignal([]);
+      
+      // get items from the backend
+      useEffect(async () => {
+        const _items = await fetch("/items/list")
+          .then(res => res.json())
+          .catch(err => window.location.href = "/")
+
+        console.log(_items)
+
+        items.value = _items;
+      },[])
+
+      const partialSelect = useComputed(() => {
+        const selectedCount = items.value.filter(i => i.isSelected).length
+        return selectedCount != 0 && selectedCount != items.value.length
+      })
+
+      const fullSelect = useComputed(() => {
+        console.log("full select compute")
+        const selectedCount = items.value.filter(i => i.isSelected).length
+        return selectedCount === items.value.length
+      })
+     
+      return html`
+      <div class="w-full flex justify-end p-4 gap-2">
+        <button id="add" class="btn btn-secondary" onClick=${addItem}>Add Item</button>
+        <button id="add" class="btn btn-secondary" onClick=${addItem}>Delete Items</button>
+        <button id="sign-out" class="btn btn-primary" onClick=${signOut} >Sign Out</button>
+      </div>
+      <div class="flex justify-center items-center">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>
+                  <label>
+                    <input id="select-all-checkbox" type="checkbox" indeterminate=${partialSelect} checked=${fullSelect} class="checkbox"/>
+                   </label>
+                </th>
+                <th>Label</th>
+                <th>Description</th>
+                <th>Expiration Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              ${items.value.map(item => html`<${ItemRow} key=${item} item=${item} />`)}
+            </tbody>
+            <tfoot>
+              <tr>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>`
+    }
+
+    function ItemRow({item}) {
+
+      const toggleCheckbox = (e) => {
+        item.isSelected = !item.isSelected
+      }
+
+      return html`
+      <tr>
+        <th><input class="checkbox" type="checkbox" checked=${item.isSelected} onClick=${toggleCheckbox}/></th>
+        <td><div class="flex items-center space-x-3"><div class="font-bold">${item.label}</div></div></td>
+        <td><div>${item.description}</div></td>
+        <td><div>${formatExpirationDate(item.expirationDate)}</div></td>
+        <th><button class="btn btn-ghost btn-xs">details</button></th>
+      </tr>`
+    }
+
+
+    render(html`<${App} page="All" />`, document.body)
+  </script>
+ </head>
+ <body class="flex flex-col justify-center items-center">
+ </body>
+</html>
