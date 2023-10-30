@@ -25,20 +25,21 @@ func AddItemHandler(db *sql.DB) http.Handler {
 
 			body, err := io.ReadAll(io.LimitReader(r.Body, 1048576))
 			if err != nil {
-				log.Println(err)
+				log.Println(err.Error())
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
 
 			if err := r.Body.Close(); err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				log.Println(err)
+				log.Println(err.Error())
 				return
 			}
 
 			if err := json.Unmarshal(body, &item); err != nil {
 				w.WriteHeader(http.StatusBadRequest)
-				println(err)
+				log.Println(err.Error())
+				return
 			}
 
 			id, addErr := itemSvc.Add(&item, username.(string))

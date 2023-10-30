@@ -20,7 +20,7 @@
       const username = document.getElementById("user").value
       const password = document.getElementById("pass").value
 
-      const response = await fetch("/signin", {
+      const response = await fetch("/api/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

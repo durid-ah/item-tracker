@@ -26,7 +26,7 @@
       
       // get items from the backend
       useEffect(async () => {
-        const _items = await fetch("/items/list")
+        const _items = await fetch("/api/items/list")
           .then(res => res.json())
           .catch(err => window.location.href = "/")
 
@@ -36,12 +36,13 @@
       },[])
 
       const partialSelect = useComputed(() => {
+        console.log('partial select')
         const selectedCount = items.value.filter(i => i.isSelected).length
         return selectedCount != 0 && selectedCount != items.value.length
       })
 
       const fullSelect = useComputed(() => {
-        console.log("full select compute")
+        console.log('full select')
         const selectedCount = items.value.filter(i => i.isSelected).length
         return selectedCount === items.value.length
       })

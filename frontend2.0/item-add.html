@@ -7,13 +7,41 @@
     <button id="sign-out" class="btn btn-primary">Sign Out</button>
   </div>
   <div class="flex justify-center items-center">
-     
+     <form action="/api/items/add" method="post">
+      <div class="form-control w-full max-w-xs">
+        <label class="label">
+          <span class="label-text">Label</span>
+        </label>
+        <input type="text" 
+            placeholder="Type here"
+            name="label" 
+            class="input input-primary w-full max-w-xs" />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Description</span>
+        </label>
+        <textarea class="textarea textarea-primary h-24" name="description"></textarea>
+      </div>
+      <div class="form-control w-full max-w-xs">
+        <label class="label">
+          <span class="label-text">Expiration Date</span>
+        </label>
+        <input type="text" 
+            placeholder="Type here"
+            name="expirationDate" 
+            class="input input-primary w-full max-w-xs" />
+      </div>
+      <div class="form-control w-full max-w-xs pt-4">
+        <input class="btn btn-primary" type="submit" value="Submit" />
+      </div>
+     </form>
   </div>
   <script>
     function setUpSignOut() {
       document.getElementById("sign-out")
         .addEventListener("click", () => {
-          fetch("/signout").then(() => window.location.href = "/")
+          fetch("/api/signout").then(() => window.location.href = "/")
         })
     }
 
