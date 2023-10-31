@@ -45,7 +45,7 @@ func AddItemHandler(db *sql.DB) http.Handler {
 			id, addErr := itemSvc.Add(&item, username.(string))
 			if addErr != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				log.Println(addErr)
+				log.Println(addErr.Error())
 				return
 			}
 

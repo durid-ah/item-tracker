@@ -7,7 +7,7 @@
     <button id="sign-out" class="btn btn-primary">Sign Out</button>
   </div>
   <div class="flex justify-center items-center">
-     <form action="/api/items/add" method="post">
+     <form id="add-item-form" action="">
       <div class="form-control w-full max-w-xs">
         <label class="label">
           <span class="label-text">Label</span>
@@ -38,6 +38,15 @@
      </form>
   </div>
   <script>
+    function convertDate(date) {
+      const entries = date.split('/')
+      const monthIdx = Number(entries[0]) - 1
+      const day = Number(entries[1])
+      const year = Number(entries[2])
+
+      return new Date(year, monthIdx, day).toISOString();
+    }
+
     function setUpSignOut() {
       document.getElementById("sign-out")
         .addEventListener("click", () => {
@@ -45,7 +54,28 @@
         })
     }
 
+    function setUpSubmit() {
+      document.getElementById('add-item-form')
+        .addEventListener('submit', (e) => {
+          e.preventDefault()
+          console.log(e)
+          const data = new FormData(e.target)
+          const jsonData = {}
+          data.forEach((val, key) => jsonData[key] = val)
+
+          jsonData.expirationDate = convertDate(jsonData.expirationDate)
+
+          fetch('/api/items/add', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jsonData)
+          })
+          console.log(jsonData)
+        });
+    }
+
     setUpSignOut()
+    setUpSubmit()
 </script>
  </body>
 </html>
