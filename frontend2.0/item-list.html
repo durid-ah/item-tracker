@@ -36,13 +36,11 @@
       },[])
 
       const partialSelect = useComputed(() => {
-        console.log('partial select')
         const selectedCount = items.value.filter(i => i.isSelected).length
         return selectedCount != 0 && selectedCount != items.value.length
       })
 
       const fullSelect = useComputed(() => {
-        console.log('full select')
         const selectedCount = items.value.filter(i => i.isSelected).length
         return selectedCount === items.value.length
       })
