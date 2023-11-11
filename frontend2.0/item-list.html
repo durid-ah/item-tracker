@@ -21,7 +21,7 @@
       window.location.href = "/item-add.html";
     }
 
-    function App({ page }) {
+    function App() {
       const items = useSignal([]);
       
       // get items from the backend
@@ -46,11 +46,23 @@
         const selectedCount = items.value.filter(i => i.isSelected).length
         return selectedCount === items.value.length
       })
+
+      async function deleteItems() {
+        const promises = items.value.filter(i => i.isSelected)
+          .map(i => fetch('/api/items/delete', {
+            method: 'DELETE',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: i.id})
+          }))
+
+        await Promise.all(promises)
+        items.value = []
+      }
      
       return html`
       <div class="w-full flex justify-end p-4 gap-2">
         <button id="add" class="btn btn-secondary" onClick=${addItem}>Add Item</button>
-        <button id="add" class="btn btn-secondary" onClick=${addItem}>Delete Items</button>
+        <button id="add" class="btn btn-secondary" onClick=${deleteItems}>Delete Items</button>
         <button id="sign-out" class="btn btn-primary" onClick=${signOut} >Sign Out</button>
       </div>
       <div class="flex justify-center items-center">
@@ -70,7 +82,7 @@
               </tr>
             </thead>
             <tbody id="tbody">
-              ${items.value.map(item => html`<${ItemRow} key=${item} item=${item} />`)}
+              ${items.value.map((item, idx) => html`<${ItemRow} key=${item.id} item=${item} items=${items} idx=${idx} />`)}
             </tbody>
             <tfoot>
               <tr>
@@ -81,10 +93,13 @@
       </div>`
     }
 
-    function ItemRow({item}) {
+    function ItemRow({item, items, idx}) {
 
       const toggleCheckbox = (e) => {
         item.isSelected = !item.isSelected
+        const updatedItems = items.value.filter((item, itemIdx) => itemIdx !== idx)
+        updatedItems.push(item)
+        items.value = updatedItems
       }
 
       return html`
@@ -98,7 +113,7 @@
     }
 
 
-    render(html`<${App} page="All" />`, document.body)
+    render(html`<${App} />`, document.body)
   </script>
  </head>
  <body class="flex flex-col justify-center items-center">

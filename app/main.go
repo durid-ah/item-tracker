@@ -53,8 +53,8 @@ func main() {
 	log.Println("Setting up item endpoints")
 	http.Handle("/api/items/add", helpers.WithAuth(itemendpoints.AddItemHandler(db)))
 	http.Handle("/api/items/list", helpers.WithAuth(itemendpoints.GetItemsHandler(db)))
-	http.Handle("/api/items/update", itemendpoints.UpdateItemHandler(db))
-	http.Handle("/api/items/delete", itemendpoints.DeleteItemHandler(db))
+	http.Handle("/api/items/update", helpers.WithAuth(itemendpoints.UpdateItemHandler(db)))
+	http.Handle("/api/items/delete", helpers.WithAuth(itemendpoints.DeleteItemHandler(db)))
 	
 	log.Println("Listening localhost:8080")
 	http.ListenAndServe("localhost:8080", nil)
