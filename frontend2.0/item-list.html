@@ -8,9 +8,10 @@
     import { render } from 'preact';
     import { html } from 'htm/preact';
 
-    function formatExpirationDate(dateString) {
-      const date = new Date(dateString)
-      return `${date.getUTCMonth()}/${date.getUTCDay()}/${date.getUTCFullYear()}`
+    const SIX_MONTHS_MILLISECONDS = 13046400000
+
+    function formatExpirationDate(date) {
+      return `${date.getUTCMonth() + 1}/${date.getUTCDate()}/${date.getUTCFullYear()}`
     }
 
     async function signOut() {
@@ -27,13 +28,20 @@
       // get items from the backend
       useEffect(async () => {
         const _items = await fetch("/api/items/list")
-          .then(res => res.json())
-          .catch(err => window.location.href = "/")
-
-        console.log(_items)
+          .then(res => {
+            if (res.satus === 401) {
+              window.location.href = "/"
+              return
+            }
+            
+            return res.json()
+          }).then(res => {
+            res.map(i => i.expirationDate = new Date(i.expirationDate))
+            return res.sort((a,b) => a.expirationDate - b.expirationDate)
+          }).catch(err => console.log(err))
 
         items.value = _items;
-      },[])
+      }, [])
 
       const partialSelect = useComputed(() => {
         const selectedCount = items.value.filter(i => i.isSelected).length
@@ -59,8 +67,8 @@
      
       return html`
       <div class="w-full flex justify-end p-4 gap-2">
-        <button id="add" class="btn btn-secondary" onClick=${addItem}>Add Item</button>
-        <button id="add" class="btn btn-secondary" onClick=${deleteItems}>Delete Items</button>
+        <button id="add" class="btn btn-outline btn-secondary" onClick=${addItem}>Add Item</button>
+        <button id="add" class="btn btn-outline btn-secondary" onClick=${deleteItems}>Delete Items</button>
         <button id="sign-out" class="btn btn-primary" onClick=${signOut} >Sign Out</button>
       </div>
       <div class="flex justify-center items-center">
@@ -97,7 +105,18 @@
         item.isSelected = !item.isSelected
         const updatedItems = items.value.filter((item, itemIdx) => itemIdx !== idx)
         updatedItems.push(item)
-        items.value = updatedItems
+        items.value = updatedItems.sort((a,b) => a.expirationDate - b.expirationDate)
+      }
+
+      const dateDiff = item.expirationDate - new Date();
+
+      let btnColor;
+      if (dateDiff <= 0) {
+        btnColor = 'btn-outline btn-error'
+      } else if (dateDiff <= SIX_MONTHS_MILLISECONDS) {
+        btnColor = 'btn-outline btn-warning'
+      } else {
+        btnColor = 'btn-ghost'
       }
 
       return html`
@@ -106,7 +125,7 @@
         <td><div class="flex items-center space-x-3"><div class="font-bold">${item.label}</div></div></td>
         <td><div>${item.description}</div></td>
         <td><div>${formatExpirationDate(item.expirationDate)}</div></td>
-        <th><button class="btn btn-ghost btn-xs">details</button></th>
+        <th><button class="btn ${btnColor} btn-xs">details</button></th>
       </tr>`
     }
 

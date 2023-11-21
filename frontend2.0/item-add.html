@@ -28,7 +28,7 @@
           <span class="label-text">Expiration Date</span>
         </label>
         <input type="text" 
-            placeholder="Type here"
+            placeholder="MM/DD/YYYY"
             name="expirationDate" 
             class="input input-primary w-full max-w-xs" />
       </div>
@@ -58,7 +58,6 @@
       document.getElementById('add-item-form')
         .addEventListener('submit', (e) => {
           e.preventDefault()
-          console.log(e)
           const data = new FormData(e.target)
           const jsonData = {}
           data.forEach((val, key) => jsonData[key] = val)
@@ -70,7 +69,6 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(jsonData)
           })
-          console.log(jsonData)
         });
     }
 
