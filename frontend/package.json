@@ -1,14 +1,24 @@
 {
-  "name": "frontend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "tailwind.config.js",
+  "name": "frontend2.0",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "author": "",
-  "license": "ISC",
+  "dependencies": {
+    "@preact/signals": "^1.2.1",
+    "htm": "^3.1.1",
+    "preact": "^10.16.0"
+  },
   "devDependencies": {
-    "daisyui": "^3.7.3"
+    "@preact/preset-vite": "^2.5.0",
+    "autoprefixer": "^10.4.16",
+    "daisyui": "^3.9.3",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.3",
+    "vite": "^4.4.5"
   }
 }
