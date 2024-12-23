@@ -1,4 +1,4 @@
-FROM golang:1.23
+FROM golang:1.23 AS build-stage
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -13,6 +13,11 @@ WORKDIR /app/app
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /item-tracker
 
+FROM alpine AS release
+WORKDIR /
+COPY --from=build-stage /item-tracker /item-tracker
+
 EXPOSE 8080
+USER nonroot:nonroot
 
 CMD [ "/item-tracker" ]
