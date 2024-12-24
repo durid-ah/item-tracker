@@ -30,7 +30,7 @@ func ConnectDatabase() *sql.DB {
 }
 
 func main() {
-
+	
 	path, _ := os.Getwd()
 	log.Printf("Executable: %s \n", path)
 	
@@ -57,5 +57,6 @@ func main() {
 	http.Handle("/api/items/delete", helpers.WithAuth(itemendpoints.DeleteItemHandler(db)))
 	
 	log.Println("Listening localhost:8080")
-	http.ListenAndServe("localhost:8080", nil)
+
+	http.ListenAndServe(":8080", nil)
 }
