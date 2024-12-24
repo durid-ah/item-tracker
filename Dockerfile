@@ -29,7 +29,7 @@ COPY ./frontend .
 
 RUN npm run build
 
-FROM golang:1.23 AS build-stage
+FROM golang:1.23-bullseye AS build-stage
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -43,11 +43,13 @@ COPY ./services ./services
 
 WORKDIR /app/app
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /item-tracker
+RUN CGO_ENABLED=1 GOOS=linux go build -o /item-tracker -a -ldflags '-linkmode external -extldflags "-static"'
 
-FROM alpine AS release
+FROM debian:bullseye-slim AS release
 WORKDIR /
 COPY --from=build-stage /item-tracker /item-tracker
+
+RUN mkdir /var/db
 
 EXPOSE 8080
 
