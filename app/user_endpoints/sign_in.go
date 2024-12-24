@@ -3,6 +3,7 @@ package userendpoints
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -20,12 +21,14 @@ func Signin(db *sql.DB) http.Handler {
 
 	   err := json.NewDecoder(r.Body).Decode(&creds)
 	   if err != nil {
+		   log.Printf("ERROR: %s \n", err.Error())
 		   w.WriteHeader(http.StatusBadRequest)
 		   return
 	   }
 
 	   user, err := userSvc.GetByUsername(creds.Username)
 	   if err != nil || !helpers.ValidatePassword(creds.Password, user.Password) {
+		   log.Printf("ERROR: %s \n", err.Error())
 		   w.WriteHeader(http.StatusUnauthorized)
 		   return
 	   }
@@ -43,6 +46,7 @@ func Signin(db *sql.DB) http.Handler {
 	   // Create the JWT string
 	   tokenString, err := token.SignedString(dto.Key)
 	   if err != nil {
+		   log.Printf("ERROR: %s \n", err.Error())
 		   w.WriteHeader(http.StatusInternalServerError)
 		   return
 	   }

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	
+
 	"embed"
 	"io/fs"
 	"os"
@@ -12,6 +12,7 @@ import (
 	itemendpoints "github.com/durid-ah/item-tracker/app/item_endpoints"
 	userendpoints "github.com/durid-ah/item-tracker/app/user_endpoints"
 	"github.com/durid-ah/item-tracker/helpers"
+	"github.com/durid-ah/item-tracker/services"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -19,9 +20,8 @@ import (
 //go:embed public
 var public embed.FS
 
-
 func ConnectDatabase() *sql.DB {
-	db, err := sql.Open("sqlite3", "./something.db")
+	db, err := sql.Open("sqlite3", "/var/db/item-tracker.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,6 +44,9 @@ func main() {
 
 	db := ConnectDatabase()
 	log.Println("Database connected...")
+
+	userSvc := services.UserService{ Db: db }
+	userSvc.Add(&services.User{ Username: "user1", Password: []byte("password")})
 
 	log.Println("Setting up user endpoints")
 	http.Handle("/api/signin", userendpoints.Signin(db))
