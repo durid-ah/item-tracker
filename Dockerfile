@@ -40,6 +40,7 @@ COPY --from=frontend-build /usr/src/app/public /app/app/public
 COPY ./dto ./dto
 COPY ./helpers ./helpers
 COPY ./services ./services
+COPY ./database ./database
 
 WORKDIR /app/app
 
