@@ -1,15 +1,14 @@
-package main
+package database
 
 import (
 	"database/sql"
 	"log"
 
-	"github.com/durid-ah/item-tracker/services"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func ConnectDatabase() *sql.DB {
-	db, err := sql.Open("sqlite3", "something.db")
+	db, err := sql.Open("sqlite3", "/var/db/item-tracker.db")
 	if err != nil {
 		panic(err)
 	}
@@ -17,15 +16,9 @@ func ConnectDatabase() *sql.DB {
 	return db
 }
 
-func CreateItemsTable(db *sql.DB) {
-
-	tx,txErr := db.Begin()
-	if txErr != nil {
-		log.Fatal(txErr)
-	}
-
-	stmt, stmtErr := tx.Prepare(`
-		CREATE TABLE items (
+func createItemsTable(db *sql.DB) {
+	stmt, stmtErr := db.Prepare(`
+		CREATE TABLE IF NOT EXISTS items (
 			id INTEGER PRIMARY KEY,
 			user_id INTEGER,
 			label TEXT NOT NULL,
@@ -45,19 +38,11 @@ func CreateItemsTable(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	tx.Commit()
 }
 
-func CreateUsersTable(db *sql.DB) {
-
-	tx,txErr := db.Begin()
-	if txErr != nil {
-		log.Fatal(txErr)
-	}
-
-	stmt, stmtErr := tx.Prepare(`
-		CREATE TABLE users (
+func createUsersTable(db *sql.DB) {
+	stmt, stmtErr := db.Prepare(`
+		CREATE TABLE IF NOT EXISTS users (
 			id INTEGER PRIMARY KEY,
 			username TEXT NOT NULL UNIQUE,
 			password TEXT NOT NULL
@@ -72,17 +57,14 @@ func CreateUsersTable(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	tx.Commit()
 }
 
-func main() {
-	db := ConnectDatabase()
+func SetupDb(db *sql.DB) {
 
-	// CreateUsersTable(db)
-	// CreateItemsTable(db)
+	createUsersTable(db)
+	createItemsTable(db)
 
-	userSvc := services.UserService{ Db: db }
-	userSvc.Add(&services.User{ Username: "user1", Password: []byte("password")})
-	userSvc.Add(&services.User{ Username: "user2", Password: []byte("password")})
+	// userSvc := services.UserService{ Db: db }
+	// userSvc.Add(&services.User{ Username: "user1", Password: []byte("password")})
+	// userSvc.Add(&services.User{ Username: "user2", Password: []byte("password")})
 }

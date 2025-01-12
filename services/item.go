@@ -27,7 +27,7 @@ func (service *ItemService) Add(newItem *Item, username string) (int64, error) {
 		return 0, txErr
 	}
 
-	userRow := tx.QueryRow("SELECT id FROM users WHERE username = ?", username)
+	userRow := service.Db.QueryRow("SELECT id FROM users WHERE username = ?", username)
 	userRow.Scan(&newItem.UserId)
 
 	stmt, stmtErr := tx.Prepare(`
@@ -37,6 +37,7 @@ func (service *ItemService) Add(newItem *Item, username string) (int64, error) {
 	}
 
 	defer stmt.Close()
+ 	defer tx.Commit()
 
 	res, err := stmt.Exec(
 		newItem.UserId,
@@ -50,19 +51,12 @@ func (service *ItemService) Add(newItem *Item, username string) (int64, error) {
 		return 0, err
 	}
 
-	tx.Commit()
-
 	id, _ := res.LastInsertId()
 	return id, nil
 }
 
 func (service *ItemService) Update(item *Item, username string) error {
-	tx, txErr := service.Db.Begin()
-	if txErr != nil {
-		return txErr
-	}
-
-	stmt, stmtErr := tx.Prepare(`
+	stmt, stmtErr := service.Db.Prepare(`
 		UPDATE items 
 		SET label = ?, 
 			description = ?,
@@ -89,8 +83,6 @@ func (service *ItemService) Update(item *Item, username string) error {
 		return err
 	}
 
-	tx.Commit()
-
 	numRows, _ := res.RowsAffected()
 	if numRows == 0 {
 		return &ServiceError{Message: NotFound}
@@ -100,12 +92,7 @@ func (service *ItemService) Update(item *Item, username string) error {
 }
 
 func (service *ItemService) Delete(id int64, username string) error {
-	tx, txErr := service.Db.Begin()
-	if txErr != nil {
-		return txErr
-	}
-
-	stmt, stmtErr := tx.Prepare(`
+	stmt, stmtErr := service.Db.Prepare(`
 		DELETE FROM items 
 		WHERE id IN (
 			SELECT i.id FROM items i
@@ -113,18 +100,17 @@ func (service *ItemService) Delete(id int64, username string) error {
 			WHERE i.id = ? AND u.username = ?
 		);
 	`)
+
 	if stmtErr != nil {
 		return stmtErr
 	}
-
+	
 	defer stmt.Close()
 
 	res, err := stmt.Exec(id, username)
 	if err != nil {
 		return err
 	}
-
-	tx.Commit()
 
 	numRows, _ := res.RowsAffected()
 	if numRows == 0 {

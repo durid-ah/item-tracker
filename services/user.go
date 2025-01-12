@@ -18,11 +18,6 @@ type UserService struct {
 }
 
 func (service *UserService) Add(newUser *User) (int64, error) {
-	tx, txErr := service.Db.Begin()
-	if txErr != nil {
-		return 0, txErr
-	}
-
 	// convert password to hash and store it in the Password field
 	bytes, err := bcrypt.GenerateFromPassword(newUser.Password, 14)
 	if err != nil {
@@ -31,7 +26,7 @@ func (service *UserService) Add(newUser *User) (int64, error) {
 	newUser.Password = bytes
 
 
-	stmt, stmtErr := tx.Prepare(`INSERT INTO users (username, password) VALUES (?,?)`)
+	stmt, stmtErr := service.Db.Prepare(`INSERT INTO users (username, password) VALUES (?,?)`)
 	if stmtErr != nil {
 		return 0, stmtErr
 	}
@@ -42,8 +37,6 @@ func (service *UserService) Add(newUser *User) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-
-	tx.Commit()
 
 	id, _ := res.LastInsertId()
 	return id, nil

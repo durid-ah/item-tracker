@@ -11,6 +11,7 @@ import (
 
 	itemendpoints "github.com/durid-ah/item-tracker/app/item_endpoints"
 	userendpoints "github.com/durid-ah/item-tracker/app/user_endpoints"
+	database "github.com/durid-ah/item-tracker/database"
 	"github.com/durid-ah/item-tracker/helpers"
 	"github.com/durid-ah/item-tracker/services"
 
@@ -30,7 +31,8 @@ func ConnectDatabase() *sql.DB {
 }
 
 func main() {
-	
+	log.SetFlags(log.Llongfile)
+
 	path, _ := os.Getwd()
 	log.Printf("Executable: %s \n", path)
 	
@@ -44,6 +46,8 @@ func main() {
 
 	db := ConnectDatabase()
 	log.Println("Database connected...")
+
+	database.SetupDb(db)
 
 	userSvc := services.UserService{ Db: db }
 	userSvc.Add(&services.User{ Username: "user1", Password: []byte("password")})
