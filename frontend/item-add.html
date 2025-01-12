@@ -68,7 +68,7 @@
             method: 'POST',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(jsonData)
-          })
+          }).then(() => window.location.href = "/item-list.html")
         });
     }
 
